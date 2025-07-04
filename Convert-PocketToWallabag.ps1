@@ -217,6 +217,9 @@ $entries = $parsedItems | ForEach-Object {
     title       = $_.title
     url         = $cleanedUrl
     created_at  = ([DateTimeOffset]::FromUnixTimeSeconds([int]$_.time_added)).ToString('yyyy-MM-ddTHH:mm:sszzz')
+    content     = ''
+    mimetype    = 'text/html; charset=UTF-8'
+    language    = 'en_US'
   }
 }
 
