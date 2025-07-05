@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Converts Pocket CSV exports into Wallabag-compatible JSON format.
+    Converts Pocket CSV exports into wallabag-compatible JSON format.
 
 .DESCRIPTION
     This script processes one or more CSV files exported from Pocket, located in a given input directory.
@@ -10,7 +10,7 @@
       - Converts Unix timestamps to ISO 8601 datetime format.
       - Splits items into archived and unread sets.
       - Outputs JSON in chunks of a given size (default 1000 items per file).
-      - Adds a unique tag in the format 'pocket-to-wallabag-YYYYMMDDHHMMSS' to each item's tag list.
+      - Adds a unique tag in the format 'pocket2wallabag-YYYYMMDDHHMMSS' to each item's tag list.
       - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
       - Writes output files into a subdirectory under the input folder named after the generated tag.
       - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
@@ -27,10 +27,10 @@
     Default is 1000.
 
 .EXAMPLE
-    .\Convert-PocketToWallabag.ps1 -InputDirectory ".\path\to\PocketExports"
+    .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports"
 
 .EXAMPLE
-    .\Convert-PocketToWallabag.ps1 -InputDirectory ".\path\to\PocketExports" -FavoriteTag "pocket_fav" -ChunkSize 500
+    .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports" -FavoriteTag "pocket_fav" -ChunkSize 500
 
 .NOTES
     Pocket CSV files are assumed to have the following fields:
@@ -181,7 +181,7 @@ function Write-JsonChunks {
 #region ----- MAIN --------------------
 
 # Generate tag + output directory
-$timestampTag = 'pocket-to-wallabag-' + (Get-Date -Format 'yyyyMMddHHmmss')
+$timestampTag = 'pocket2wallabag-' + (Get-Date -Format 'yyyyMMddHHmmss')
 $outputDir = Join-Path $InputDirectory $timestampTag
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 
