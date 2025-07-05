@@ -1,42 +1,53 @@
 <#
-.SYNOPSIS
-    Converts Pocket CSV exports into wallabag-compatible JSON format.
+  .SYNOPSIS
+  Converts Pocket CSV exports into wallabag-compatible JSON format.
 
-.DESCRIPTION
-    This script processes one or more CSV files exported from Pocket, located in a given input directory.
-    It performs the following operations:
-      - Parses CSV lines safely, accounting for unquoted fields and embedded commas in titles and URLs.
-      - Combines all entries into a single dataset.
-      - Converts Unix timestamps to ISO 8601 datetime format.
-      - Splits items into archived and unread sets.
-      - Outputs JSON in chunks of a given size (default 1000 items per file).
-      - Adds a unique tag in the format 'pocket2wallabag-YYYYMMDDHHMMSS' to each item's tag list.
-      - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
-      - Writes output files into a subdirectory under the input folder named after the generated tag.
-      - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
+  .DESCRIPTION
+  This script processes one or more CSV files exported from Pocket, located in a given input directory.
+  It performs the following operations:
+    - Parses CSV lines safely, accounting for unquoted fields and embedded commas in titles and URLs.
+    - Combines all entries into a single dataset.
+    - Converts Unix timestamps to ISO 8601 datetime format.
+    - Splits items into archived and unread sets.
+    - Outputs JSON in chunks of a given size (default 1000 items per file).
+    - Adds a unique tag in the format 'pocket2wallabag-YYYYMMDDHHMMSS' to each item's tag list.
+    - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
+    - Writes output files into a subdirectory under the input folder named after the generated tag.
+    - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
 
-.PARAMETER InputDirectory
-    The directory containing one or more Pocket-exported CSV files to convert.
+  .PARAMETER InputDirectory
+  The directory containing one or more Pocket-exported CSV files to convert.
 
-.PARAMETER FavoriteTag
-    Optional. A tag used in Pocket to indicate items marked as "favorite".
-    If provided, any item containing this tag will be exported with `"is_starred": 1`.
+  .PARAMETER FavoriteTag
+  Optional. A tag used in Pocket to indicate items marked as "favorite".
+  If provided, any item containing this tag will be exported with `"is_starred": 1`.
 
-.PARAMETER ChunkSize
-    Optional. The maximum number of items to include in each output JSON file.
-    Default is 1000.
+  .PARAMETER ChunkSize
+  Optional. The maximum number of items to include in each output JSON file.
+  Default is 1000.
 
-.EXAMPLE
-    .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports"
+  .EXAMPLE
+  .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports"
 
-.EXAMPLE
-    .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports" -FavoriteTag "pocket_fav" -ChunkSize 500
+  .EXAMPLE
+  .\Convert-Pocket2Wallabag.ps1 -InputDirectory ".\path\to\PocketExports" -FavoriteTag "pocket_fav" -ChunkSize 500
 
-.NOTES
-    Pocket CSV files are assumed to have the following fields:
-        title,url,time_added,tags,status
-    Titles and URLs may contain commas and may or may not be quoted.
-    The script uses regular expressions and pre-parsing to extract fields robustly.
+  .LINK
+  https://github.com/qu13t0ne/pocket2wallabag
+
+  .NOTES
+  Author:         Mike Owens, mikeowens (at) fastmail (dot) com
+  Website:        https://michaelowens.me
+  GitLab:         https://gitlab.com/qu13t0ne
+  GitHub:         https://github.com/qu13t0ne
+  Bluesky:        https://bsky.app/profile/qu13t0ne.bsky.social
+  Mastodon:       https://infosec.exchange/@qu13t0ne
+
+  Pocket CSV files are assumed to have the following fields:
+      title,url,time_added,tags,status
+  Titles and URLs may contain commas and may or may not be quoted.
+  The script uses regular expressions and pre-parsing to extract fields robustly.
+
 #>
 
 param (
