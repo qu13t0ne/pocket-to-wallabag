@@ -11,7 +11,7 @@
     - Splits items into archived and unread sets.
     - Outputs JSON in chunks of a given size (default 1000 items per file).
     - Adds a unique tag in the format 'pocket2wallabag-YYYYMMDDHHMMSS' to each item's tag list.
-    - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
+    - Items matching a `FavoriteTag` will be marked as `"is_starred": 1`.
     - Writes output files into a subdirectory under the input folder named after the generated tag.
     - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
 
@@ -19,8 +19,12 @@
   The directory containing one or more Pocket-exported CSV files to convert.
 
   .PARAMETER FavoriteTag
-  Optional. A tag used in Pocket to indicate items marked as "favorite".
-  If provided, any item containing this tag will be exported with `"is_starred": 1`.
+  Optional. A tag used in Pocket to indicate items that had been favorited (starred)
+  in Pocket. Based on assumption that UpdatePocketFavoritesWithTag.ps1 was used
+  before this script, the tag 'favorite' is defaulted. Any item containing this tag
+  will be exported with `"is_starred": 1`.
+  Note: If you don't want to use this, just give as the -FavoriteTag something
+  that doesn't match any other tags in your Pocket data.
 
   .PARAMETER ChunkSize
   Optional. The maximum number of items to include in each output JSON file.
@@ -54,7 +58,7 @@ param (
   [Parameter(Mandatory = $true)]
   [string]$InputDirectory,
 
-  [string]$FavoriteTag,
+  [string]$FavoriteTag = 'favorite',
 
   [int]$ChunkSize = 1000
 )

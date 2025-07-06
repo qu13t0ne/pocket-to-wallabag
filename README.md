@@ -1,4 +1,5 @@
 # pocket2wallabag
+
 ```
                                 ___
  __   __   __        ___ ___   |_  | ▄   ▄       █ █       ▗▖          ▗▄▖
@@ -9,7 +10,7 @@
 
 ## Description
 
-**A PowerShell script to migrate Pocket CSV export data to wallabag format.**
+**PowerShell scripts to migrate Pocket CSV export data to wallabag format.**
 
 With the impending death of Mozilla's [Pocket](https://getpocket.com/farewell) read it later platform, I put this stuff together to transition Pocket export data into a self-hosted [wallabag](https://wallabag.org) instance.
 Although wallabag does include Pocket importers, both by linking to your Pocket account and by uploading the Pocket CSV export files, neither was robust enough to import my 12K saves with tags.
@@ -27,20 +28,65 @@ Hopefully it helps someone else, too.
 - Read!
 
 **Contents**
+
 - [pocket2wallabag](#pocket2wallabag)
   - [Description](#description)
-  - [Add Tag to Pocket Favorites](#add-tag-to-pocket-favorites)
+  - [Add Tag to Pocket Favorites Before Export](#add-tag-to-pocket-favorites-before-export)
+    - [Register a Pocket App](#register-a-pocket-app)
+    - [Get Pocket Access Token](#get-pocket-access-token)
+    - [Save the Consumer Key and Access Token as Environment Variables](#save-the-consumer-key-and-access-token-as-environment-variables)
+    - [Update Pocket Favorites with Tag](#update-pocket-favorites-with-tag)
   - [Export Pocket Data](#export-pocket-data)
   - [Convert Data Using Convert-Pocket2Wallabag.ps1](#convert-data-using-convert-pocket2wallabagps1)
   - [Import Converted Data to wallabag](#import-converted-data-to-wallabag)
   - [Metadata](#metadata)
   - [Links and References](#links-and-references)
 
-## Add Tag to Pocket Favorites
+## Add Tag to Pocket Favorites Before Export
 
 Unfortunately, the Pocket CSV export data doesn't include whether an item was 'Favorited', which is something I made extensive use of during my years of Pocket usage, with over 600 favorited articles.
 
 Solution: Before export, add a custom tag to favorited items using the Pocket API.
+
+### Register a Pocket App
+
+- Go to: https://getpocket.com/developer/apps/new
+- Click “Create an Application”
+- Fill in app name, description, and set permissions (request “modify” scope)
+- Get the provided Consumer Key
+
+Note: if you've already done this, the consumer key can be accessed at https://getpocket.com/develoepr/apps/.
+
+### Get Pocket Access Token
+
+Run the script `Get-PocketAccessToken.ps1`, providing the Consumer Key from above using the `-ConsumerKey` parameter:
+
+```ps
+.\Get-PocketAccessToken -ConsumerKey "abcdef123456"
+```
+
+Follow the script prompts to authenticate in the browser to your Pocket account and authorize the app.
+
+### Save the Consumer Key and Access Token as Environment Variables
+
+The script will output two commands for loading the Consumer Key and Access Token into your shell session as environment variables.
+Run them.
+
+Example:
+
+```ps
+$env:POCKET_CONSUMER_KEY = "your-key"
+$env:POCKET_ACCESS_TOKEN = "your-token"
+```
+
+### Update Pocket Favorites with Tag
+
+Run the script `Update-PocketFavoritesWithTag.ps1`.
+No inputs required.
+
+```ps
+.\Update-PocketFavoritesWithTag.ps1
+```
 
 ## Export Pocket Data
 
@@ -54,15 +100,16 @@ About the script:
 
 > This script processes one or more CSV files exported from Pocket, located in a given input directory.
 > It performs the following operations:
->   - Parses CSV lines safely, accounting for unquoted fields and embedded commas in titles and URLs.
->   - Combines all entries into a single dataset.
->   - Converts Unix timestamps to ISO 8601 datetime format.
->   - Splits items into archived and unread sets.
->   - Outputs JSON in chunks of a given size (default 1000 items per file).
->   - Adds a unique tag in the format 'pocket-to-wallabag-YYYYMMDDHHMMSS' to each item's tag list.
->   - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
->   - Writes output files into a subdirectory under the input folder named after the generated tag.
->   - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
+>
+> - Parses CSV lines safely, accounting for unquoted fields and embedded commas in titles and URLs.
+> - Combines all entries into a single dataset.
+> - Converts Unix timestamps to ISO 8601 datetime format.
+> - Splits items into archived and unread sets.
+> - Outputs JSON in chunks of a given size (default 1000 items per file).
+> - Adds a unique tag in the format 'pocket-to-wallabag-YYYYMMDDHHMMSS' to each item's tag list.
+> - If a `FavoriteTag` is provided, items that include that tag will be marked as `"is_starred": 1`.
+> - Writes output files into a subdirectory under the input folder named after the generated tag.
+> - Output files are named using the format: `{tag}_{unread/archive}_00.json`, etc.
 
 Run the script against the downloaded Pocket CSVs.
 If you created a custom tag designating Pocket favorites, provide it as `-FavoriteTag <tag>`.
@@ -78,6 +125,7 @@ So, I copied the processed files to the host server, then temporarily mounted th
 Then I accessed the shell inside the container using `docker exec -it <container> sh`.
 
 Once in the shell of the container/server (depending on your setup), the following will iterate through all processed datafiles and upload them to your wallabag instance. Modify the `DIRECTORY_TO_UPLOAD` and `WALLABAG_USER` as appropriate, and ensure you're executing from the directory `/var/www/wallabag`.
+
 ```sh
 DIRECTORY_TO_UPLOAD=/path/to/files
 WALLABAG_USER=wallabag
@@ -103,4 +151,4 @@ Just let it run.
 - https://wallabag.org
 - https://github.com/qu13t0ne/outpost
 
-*Disclosure: ChatGPT was used for support in drafting these scripts.*
+_Disclosure: ChatGPT was used for support in drafting these scripts._
